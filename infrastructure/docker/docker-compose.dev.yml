@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  control-plane:
+    build:
+      context: ../../
+      dockerfile: Dockerfile
+    container_name: ztx-control-plane
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - HOST=0.0.0.0
+      - ENVIRONMENT=development
+      - DATABASE_URL=sqlite:///./zerotrustx.db
+      - SECRET_KEY=dev_secret_key_zerotrustx_2026
+    volumes:
+      - ../../zerotrustx.db:/app/zerotrustx.db
+    restart: unless-stopped
+
+  web-console:
+    build:
+      context: ../../apps/web-console
+      dockerfile: Dockerfile
+    container_name: ztx-web-console
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - control-plane
+    restart: unless-stopped
+
+  mock-private-apps:
+    build:
+      context: ../../
+      dockerfile: Dockerfile
+    command: ["python", "private-apps/mock_apps.py"]
+    container_name: ztx-private-apps
+    ports:
+      - "9000:9000"
+    restart: unless-stopped
