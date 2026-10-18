@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  control-plane:
+    build:
+      context: ../../
+      dockerfile: Dockerfile
+    container_name: ztx-control-plane
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - HOST=0.0.0.0
+      - ENVIRONMENT=production
+      - DATABASE_URL=sqlite:///./zerotrustx.db
+      - SECRET_KEY=${SECRET_KEY:-prod_secret_key_zerotrustx_2026}
+    volumes:
+      - ztx-data:/app
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  web-console:
+    build:
+      context: ../../apps/web-console
+      dockerfile: Dockerfile
+    container_name: ztx-web-console
+    ports:
+      - "80:80"
+    depends_on:
+      control-plane:
+        condition: service_healthy
+    restart: always
+
+  mock-private-apps:
+    build:
+      context: ../../
+      dockerfile: Dockerfile
+    command: ["python", "private-apps/mock_apps.py"]
+    container_name: ztx-private-apps
+    ports:
+      - "9000:9000"
+    depends_on:
+      control-plane:
+        condition: service_healthy
+    restart: always
+
+volumes:
+  ztx-data:

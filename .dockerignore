@@ -1,0 +1,42 @@
+# Version control & metadata
+.git
+.gitignore
+.github
+
+# Environment & secrets
+.env
+.env.*
+*.pem
+*.key
+
+# SQLite local databases
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node & Frontend dependencies/builds
+node_modules/
+**/node_modules/
+apps/web-console/dist/
+apps/web-console/node_modules/
+
+# Infrastructure local state
+infrastructure/terraform/.terraform/
+infrastructure/terraform/*.tfstate*
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
